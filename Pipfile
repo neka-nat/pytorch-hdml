@@ -14,6 +14,7 @@ pyyaml = "*"
 "h5py" = "*"
 tqdm = "*"
 scikit-learn = "*"
+visdom = "*"
 
 [dev-packages]
 

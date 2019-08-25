@@ -1,5 +1,6 @@
 import os
 import copy
+from collections import OrderedDict
 import numpy as np
 import torch
 import torch.nn as nn
@@ -46,6 +47,7 @@ def triplet_train(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
 
             jm = jm.item()
             jgen = jgen.item()
+            pbar.set_description("Jmetric: %f, Jgen: %f, Jm: %f, CrossEntropy: %f" % (jmetric.item(), jgen, jm, ce.item()))
 
             if cnt % model_save_interval == 0:
                 torch.save(hdml_tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
