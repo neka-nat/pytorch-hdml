@@ -25,6 +25,7 @@ def triplet_train(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
         for batch in copy.copy(epoch_iterator):
             x_batch, label = batch
             x_batch -= img_mean
+            pbar.update(1)
 
             jgen, jmetric, jm, ce = hdml_tri(torch.from_numpy(x_batch).to(device),
                                              torch.from_numpy(label.astype(np.int64)).to(device),
