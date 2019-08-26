@@ -22,7 +22,7 @@ python cars196_converter.py
 
 ```
 pipenv shell
-python train_cars196.py
+./run.sh train_cars196.py
 ```
 
 ## Reference

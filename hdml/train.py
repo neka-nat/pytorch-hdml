@@ -8,11 +8,12 @@ import torch.optim as optim
 from tqdm import tqdm
 from . import hdml
 
-def train_triplet(data_streams, max_steps, lr,
+def train_triplet(data_streams, viz, max_steps, lr,
                   model_path='model', model_save_interval=2000,
                   device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
+    win_jm = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jm loss'))
 
     tri = hdml.TripletBase().to(device)
     optimizer_c = optim.Adam(tri.parameters(), lr=lr, weight_decay=5e-3)
@@ -36,14 +37,19 @@ def train_triplet(data_streams, max_steps, lr,
 
             if cnt % model_save_interval == 0:
                 torch.save(tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
+            viz.line(X=np.array([cnt]), Y=np.array([jm.item()]), win=win_jm, update='append')
             cnt += 1
 
 
-def train_hdml_triplet(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
+def train_hdml_triplet(data_streams, viz, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
                        model_path='model', model_save_interval=2000,
                        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
+    win_jgen = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jgen loss'))
+    win_jmetric = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jmetric loss'))
+    win_jm = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jm loss'))
+    win_ce = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Cross-entropy loss'))
 
     hdml_tri = hdml.TripletHDML().to(device)
     optimizer_c = optim.Adam(list(hdml_tri.classifier1.parameters()) + list(hdml_tri.classifier2.parameters()),
@@ -82,4 +88,8 @@ def train_hdml_triplet(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0
 
             if cnt % model_save_interval == 0:
                 torch.save(hdml_tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
+            viz.line(X=np.array([cnt]), Y=np.array([jgen]), win=win_jgen, update='append')
+            viz.line(X=np.array([cnt]), Y=np.array([jmetric.item()]), win=win_jmetric, update='append')
+            viz.line(X=np.array([cnt]), Y=np.array([jm]), win=win_jm, update='append')
+            viz.line(X=np.array([cnt]), Y=np.array([ce.item()]), win=win_ce, update='append')
             cnt += 1
