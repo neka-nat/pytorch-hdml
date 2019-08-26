@@ -22,9 +22,9 @@ class Generator(nn.Module):
         return out
 
 
-class Classifier(nn.Module):
+class TripletBase(nn.Module):
     def __init__(self, embedding_size=128, n_class=99):
-        super(Classifier, self).__init__()
+        super(TripletBase, self).__init__()
         n_mid = 1024
         self.googlenet = googlenet.googlenet()
         self.bn1 = nn.BatchNorm1d(n_mid)
@@ -67,7 +67,7 @@ class TripletHDML(nn.Module):
         self.beta = beta
         self.lmd = lmd
         self.softmax_factor = softmax_factor
-        self.classifier1 = Classifier(embedding_size, n_class)
+        self.classifier1 = TripletBase(embedding_size, n_class)
         self.loss_fn = loss.TripletLoss()
         self.pulling = TripletPulling()
         self.generator = Generator()

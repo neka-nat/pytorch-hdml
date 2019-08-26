@@ -8,15 +8,46 @@ import torch.optim as optim
 from tqdm import tqdm
 from . import hdml
 
-
-def triplet_train(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
+def train_triplet(data_streams, max_steps, lr,
                   model_path='model', model_save_interval=2000,
                   device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
 
+    tri = hdml.TripletBase().to(device)
+    optimizer_c = optim.Adam(tri.parameters(), lr=lr, weight_decay=5e-3)
+
+    img_mean = np.array([123, 117, 104], dtype=np.float32).reshape(1, 3, 1, 1)
+    cnt = 0
+
+    with tqdm(total=max_steps) as pbar:
+        for batch in copy.copy(epoch_iterator):
+            x_batch, label = batch
+            x_batch -= img_mean
+            pbar.update(1)
+
+            jm, _, _ = tri(torch.from_numpy(x_batch).to(device))
+
+            optimizer_c.zero_grad()
+            jm.backward()
+            optimizer_c.step()
+
+            pbar.set_description("Jm: %f" % jm.item())
+
+            if cnt % model_save_interval == 0:
+                torch.save(tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
+            cnt += 1
+
+
+def train_hdml_triplet(data_streams, max_steps, lr_init, lr_gen=1.0e-2, lr_s=1.0e-3,
+                       model_path='model', model_save_interval=2000,
+                       device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
+    stream_train, stream_train_eval, stream_test = data_streams
+    epoch_iterator = stream_train.get_epoch_iterator()
+
     hdml_tri = hdml.TripletHDML().to(device)
-    optimizer_c = optim.Adam(list(hdml_tri.classifier1.parameters()) + list(hdml_tri.classifier2.parameters()), lr=lr_init)
+    optimizer_c = optim.Adam(list(hdml_tri.classifier1.parameters()) + list(hdml_tri.classifier2.parameters()),
+                             lr=lr_init, weight_decay=5e-3)
     optimizer_g = optim.Adam(hdml_tri.generator.parameters(), lr=lr_gen)
     optimizer_s = optim.Adam(hdml_tri.softmax_classifier.parameters(), lr=lr_s)
 
