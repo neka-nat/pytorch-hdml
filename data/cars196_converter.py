@@ -26,6 +26,7 @@ def preprocess(hwc_bgr_image, size):
 
 if __name__ == '__main__':
     fuel_data_path = "./CARS196"
+    n_train_class = 99
     archive_filepath = os.path.join(fuel_data_path, "CARS196.zip")
     image_filepath = os.path.join(fuel_data_path, "car_ims")
     label_filepath = os.path.join(fuel_data_path, "cars_annos.mat")
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     ds_targets.dims[1].label = "class_labels"
 
     # specify the splits (labels 1~98 for train, 99~196 for test)
-    test_head = class_labels.index(99)
+    test_head = class_labels.index(n_train_class)
     split_train, split_test = (0, test_head), (test_head, num_examples)
     split_dict = dict(train=dict(images=split_train, targets=split_train),
                       test=dict(images=split_test, targets=split_test))

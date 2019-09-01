@@ -10,6 +10,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--image_size', type=int, default=227, help="The size of input images.")
     parser.add_argument('-l', '--lr_init', type=float, default=7e-5, help="Initial learning rate.")
     parser.add_argument('-m', '--max_steps', type=int, default=80000, help="The maximum step number.")
+    parser.add_argument('-c', '--n_class', type=int, default=99, help="Number of classes.")
     parser.add_argument('-n', '--no_hdml', action='store_true', default=False, help='No use hdml.')
     parser.add_argument('-v', '--visdomserver', type=str, default='localhost', help="Visdom's server name.")
     args = parser.parse_args()
@@ -18,8 +19,8 @@ if __name__ == '__main__':
     assert viz.check_connection(timeout_seconds=3), 'No connection could be formed quickly'
 
     if args.no_hdml:
-        train.train_triplet(streams, viz, args.max_steps, args.lr_init,
+        train.train_triplet(streams, viz, args.max_steps, args.n_class, args.lr_init,
                             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     else:
-        train.train_hdml_triplet(streams, viz, args.max_steps, args.lr_init,
+        train.train_hdml_triplet(streams, viz, args.max_steps, args.n_class, args.lr_init,
                                  device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
