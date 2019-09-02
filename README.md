@@ -2,7 +2,7 @@
 
 This is an unofficial implementation of ["Hardness-Aware Deep Metric Learning" (CVPR 2019 Oral)](https://arxiv.org/abs/1903.05503) in Pytorch.
 
-## Instrallation
+## Installation
 
 ```
 cd pytorch-hdml
@@ -10,7 +10,7 @@ pip install pipenv
 pipenv install
 ```
 
-## Dataset
+## Download dataset
 
 ```
 cd data
@@ -19,6 +19,8 @@ python cars196_converter.py
 ```
 
 ## Train CARS196 dataset
+Execute a training script. 
+When executed, visdom is launched at the same time.
 
 ```
 pipenv shell
