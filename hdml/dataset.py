@@ -16,7 +16,7 @@ class Cars196Dataset(H5PYDataset):
 
 
 def get_streams(path, batch_size=50, dataset='cars196', method='triplet',
-                crop_size=224, load_in_memory=False):
+                crop_size=224):
     '''
     args:
         path (str): data file path.
@@ -36,8 +36,8 @@ def get_streams(path, batch_size=50, dataset='cars196', method='triplet',
         raise ValueError(
             "`dataset` must be 'cars196'.")
 
-    dataset_train = dataset_class(path, ['train'], load_in_memory=load_in_memory)
-    dataset_test = dataset_class(path, ['test'], load_in_memory=load_in_memory)
+    dataset_train = dataset_class(path, ['train'], load_in_memory=True)
+    dataset_test = dataset_class(path, ['test'], load_in_memory=True)
 
     if not isinstance(crop_size, tuple):
         crop_size = (crop_size, crop_size)
@@ -72,9 +72,6 @@ class TripletLossScheme(BatchSizeScheme):
         self._classes = self._label_encoder.classes_
         self.num_classes = len(self._classes)
         assert batch_size % 3 == 0, ("batch_size must be 3*n.")
-        assert batch_size <= self.num_classes * 3, (
-               "batch_size must not exceed 3 times the number of classes"
-               "(i.e. set batch_size <= {}).".format(self.num_classes * 3))
         self.batch_size = batch_size
 
         self._class_to_indexes = []
@@ -90,21 +87,19 @@ class TripletLossScheme(BatchSizeScheme):
 
     def next(self):
         anchor_indexes, positive_indexes, negative_indexes= self._generate_indexes()
-        indexes = anchor_indexes + positive_indexes + negative_indexes 
+        indexes = anchor_indexes + positive_indexes + negative_indexes
         return indexes
 
     def _generate_indexes(self):
-        random_classes = random.sample(
-            list(range(self.num_classes)), self.batch_size // 3 * 2)
+        random_classes = [random.sample(list(range(self.num_classes)), 2) for _ in range(self.batch_size // 3)]
         anchor_indexes = []
         positive_indexes = []
         negative_indexes = []
         for i in range(self.batch_size // 3):
-            a, p = random.sample(list(self._class_to_indexes[random_classes[i]]), 2)
+            a, p = random.sample(list(self._class_to_indexes[random_classes[i][0]]), 2)
             anchor_indexes.append(a)
             positive_indexes.append(p)
-            n = random.sample(list(
-                    self._class_to_indexes[random_classes[i+self.batch_size // 3]]), 1)
+            n = random.sample(list(self._class_to_indexes[random_classes[i][1]]), 1)
             negative_indexes.append(n[0])
         return anchor_indexes, positive_indexes, negative_indexes
 
