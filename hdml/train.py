@@ -11,7 +11,8 @@ from sklearn.manifold import TSNE
 from . import hdml
 
 def train_triplet(data_streams, viz, max_steps, n_class, lr,
-                  model_path='model', model_save_interval=2000,
+                  model_path='model', result_path='results',
+                  model_save_interval=2000,
                   tsne_test_interval=1000, n_test_data=1000,
                   device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
@@ -47,6 +48,8 @@ def train_triplet(data_streams, viz, max_steps, n_class, lr,
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
                 z_reduced = TSNE(n_components=2, random_state=0).fit_transform(np.vstack(test_data))
                 viz.scatter(X=z_reduced, Y=np.vstack(test_label), win=win_tsne, opts=dict(title='t-SNE'))
+                with open(os.path.join(result_path, 'result_%d.json' % cnt), "w") as f:
+                    f.write(viz.get_window_data())
 
             viz.line(X=np.array([cnt]), Y=np.array([jm.item()]), win=win_jm, update='append')
 
@@ -57,7 +60,8 @@ def train_triplet(data_streams, viz, max_steps, n_class, lr,
 
 def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
                        lr_gen=1.0e-2, lr_s=1.0e-3,
-                       model_path='model', model_save_interval=2000,
+                       model_path='model', result_path='results',
+                       model_save_interval=2000,
                        tsne_test_interval=1000, n_test_data=1000,
                        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
@@ -111,6 +115,8 @@ def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
                 z_reduced = TSNE(n_components=2, random_state=0).fit_transform(np.vstack(test_data))
                 viz.scatter(X=z_reduced, Y=np.vstack(test_label), win=win_tsne, opts=dict(title='t-SNE'))
+                with open(os.path.join(result_path, 'result_%d.json' % cnt), "w") as f:
+                    f.write(viz.get_window_data())
 
             viz.line(X=np.array([cnt]), Y=np.array([jgen]), win=win_jgen, update='append')
             viz.line(X=np.array([cnt]), Y=np.array([jmetric.item()]), win=win_jmetric, update='append')

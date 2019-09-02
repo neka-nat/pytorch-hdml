@@ -25,6 +25,8 @@ pipenv shell
 ./run.sh train_cars196.py
 ```
 
+Access http://localhost:8097 in the browser.
+
 ## Reference
 
 Official tensorflow implementation https://github.com/wzzheng/HDML
