@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--visdomserver', type=str, default='localhost', help="Visdom's server name.")
     args = parser.parse_args()
     streams = dataset.get_streams('data/CARS196/cars196.hdf5', args.batch_size, 'cars196', 'triplet', crop_size=args.image_size)
-    viz = visdom.Visdom(server='http://' + args.visdomserver)
+    viz = visdom.Visdom(server='http://' + args.visdomserver, log_to_filename='visdom.log')
     assert viz.check_connection(timeout_seconds=3), 'No connection could be formed quickly'
 
     if args.no_hdml:
