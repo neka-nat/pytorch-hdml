@@ -4,3 +4,4 @@
 *.pth
 results/*.json
 data/CARS196
+data/cub200_2011

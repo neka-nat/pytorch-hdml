@@ -15,6 +15,7 @@ pyyaml = "*"
 tqdm = "*"
 scikit-learn = "*"
 visdom = "*"
+matplotlib = "*"
 
 [dev-packages]
 
