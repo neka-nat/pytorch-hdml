@@ -12,7 +12,7 @@ from . import hdml
 
 def train_triplet(data_streams, viz, max_steps, n_class, lr,
                   model_path='model', model_save_interval=2000,
-                  tsne_test_interval=1000, n_test_data=1000,
+                  tsne_test_interval=1000, n_test_data=1000, pretrained=False,
                   device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
@@ -21,7 +21,7 @@ def train_triplet(data_streams, viz, max_steps, n_class, lr,
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
 
-    tri = hdml.TripletBase(n_class=n_class).to(device)
+    tri = hdml.TripletBase(n_class=n_class, pretrained=pretrained).to(device)
     optimizer_c = optim.Adam(tri.parameters(), lr=lr, weight_decay=5e-3)
 
     img_mean = np.array([123, 117, 104], dtype=np.float32).reshape(1, 3, 1, 1)
@@ -58,7 +58,7 @@ def train_triplet(data_streams, viz, max_steps, n_class, lr,
 def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
                        lr_gen=1.0e-2, lr_s=1.0e-3,
                        model_path='model', model_save_interval=2000,
-                       tsne_test_interval=1000, n_test_data=1000,
+                       tsne_test_interval=1000, n_test_data=1000, pretrained=False,
                        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
@@ -70,7 +70,7 @@ def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
 
-    hdml_tri = hdml.TripletHDML(n_class=n_class).to(device)
+    hdml_tri = hdml.TripletHDML(n_class=n_class, pretrained=pretrained).to(device)
     optimizer_c = optim.Adam(list(hdml_tri.classifier1.parameters()) + list(hdml_tri.classifier2.parameters()),
                              lr=lr_init, weight_decay=5e-3)
     optimizer_g = optim.Adam(hdml_tri.generator.parameters(), lr=lr_gen)
