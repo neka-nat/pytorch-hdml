@@ -24,7 +24,7 @@ When executed, visdom is launched at the same time.
 
 ```
 pipenv shell
-./run.sh train_cars196.py
+./run.sh train_triplet.py
 ```
 
 Access http://localhost:8097 in the browser.

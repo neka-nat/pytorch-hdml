@@ -11,11 +11,17 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--lr_init', type=float, default=7e-5, help="Initial learning rate.")
     parser.add_argument('-m', '--max_steps', type=int, default=80000, help="The maximum step number.")
     parser.add_argument('-c', '--n_class', type=int, default=99, help="Number of classes.")
+    parser.add_argument('-d', '--dataset', type=str, default='cars196', choices=['cars196', 'cub200_2011'], help='Choose a dataset.')
     parser.add_argument('-n', '--no_hdml', action='store_true', default=False, help='No use hdml.')
     parser.add_argument('-p', '--pretrained', action='store_true', default=False, help='Use pretrained weight.')
     parser.add_argument('-v', '--visdomserver', type=str, default='localhost', help="Visdom's server name.")
     args = parser.parse_args()
-    streams = dataset.get_streams('data/CARS196/cars196.hdf5', args.batch_size, 'cars196', 'triplet', crop_size=args.image_size)
+    if args.dataset == 'cars196':
+        streams = dataset.get_streams('data/CARS196/cars196.hdf5', args.batch_size, 'triplet', crop_size=args.image_size)
+    elif args.dataset == 'cub200_2011':
+        streams = dataset.get_streams('data/cub200_2011/cub200_2011.hdf5', args.batch_size, 'triplet', crop_size=args.image_size)
+    else:
+        raise ValueError("`dataset` must be 'cars196' or 'cub200_2011'.")
     viz = visdom.Visdom(server='http://' + args.visdomserver, log_to_filename='visdom.log')
     assert viz.check_connection(timeout_seconds=3), 'No connection could be formed quickly'
 

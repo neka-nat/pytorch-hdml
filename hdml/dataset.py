@@ -8,14 +8,8 @@ from fuel.schemes import IterationScheme, BatchSizeScheme, SequentialScheme
 from .random_fixed_size_crop_mod import RandomFixedSizeCrop
 import random
 
-class Cars196Dataset(H5PYDataset):
-    _filename = 'cars196.hdf5'
-    def __init__(self, path, which_sets, **kwargs):
-        super(Cars196Dataset, self).__init__(
-            file_or_path=path, which_sets=which_sets, **kwargs)
 
-
-def get_streams(path, batch_size=50, dataset='cars196', method='triplet',
+def get_streams(path, batch_size=50, method='triplet',
                 crop_size=224):
     '''
     args:
@@ -30,12 +24,7 @@ def get_streams(path, batch_size=50, dataset='cars196', method='triplet',
             height and width of the cropped image.
     '''
 
-    if dataset == 'cars196':
-        dataset_class = Cars196Dataset
-    else:
-        raise ValueError(
-            "`dataset` must be 'cars196'.")
-
+    dataset_class = H5PYDataset
     dataset_train = dataset_class(path, ['train'], load_in_memory=True)
     dataset_test = dataset_class(path, ['test'], load_in_memory=True)
 
