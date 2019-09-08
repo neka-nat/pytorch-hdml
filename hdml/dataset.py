@@ -16,8 +16,6 @@ def get_streams(path, batch_size=50, method='triplet',
         path (str): data file path.
         batch_size (int):
             number of examples per batch
-        dataset (str):
-            specify the dataset from 'cars196'.
         method (str or fuel.schemes.IterationScheme):
             batch construction method. Specify 'triplet'.
         crop_size (int or tuple of ints):

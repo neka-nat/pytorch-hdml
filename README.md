@@ -20,14 +20,12 @@ python cars196_converter.py
 
 ## Train CARS196 dataset
 Execute a training script. 
-When executed, visdom is launched at the same time.
+When executed, the tensorboard log is saved.
 
 ```
 pipenv shell
-./run.sh train_triplet.py
+python train_triplet.py
 ```
-
-Access http://localhost:8097 in the browser.
 
 ## Reference
 

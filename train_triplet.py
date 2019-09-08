@@ -1,6 +1,6 @@
 import argparse
 import torch
-import visdom
+from torch.utils.tensorboard import SummaryWriter
 from hdml import train
 from hdml import dataset
 
@@ -14,7 +14,6 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dataset', type=str, default='cars196', choices=['cars196', 'cub200_2011'], help='Choose a dataset.')
     parser.add_argument('-n', '--no_hdml', action='store_true', default=False, help='No use hdml.')
     parser.add_argument('-p', '--pretrained', action='store_true', default=False, help='Use pretrained weight.')
-    parser.add_argument('-v', '--visdomserver', type=str, default='localhost', help="Visdom's server name.")
     args = parser.parse_args()
     if args.dataset == 'cars196':
         streams = dataset.get_streams('data/CARS196/cars196.hdf5', args.batch_size, 'triplet', crop_size=args.image_size)
@@ -22,12 +21,11 @@ if __name__ == '__main__':
         streams = dataset.get_streams('data/cub200_2011/cub200_2011.hdf5', args.batch_size, 'triplet', crop_size=args.image_size)
     else:
         raise ValueError("`dataset` must be 'cars196' or 'cub200_2011'.")
-    viz = visdom.Visdom(server='http://' + args.visdomserver, log_to_filename='visdom.log')
-    assert viz.check_connection(timeout_seconds=3), 'No connection could be formed quickly'
-
+    writer = SummaryWriter()
     if args.no_hdml:
-        train.train_triplet(streams, viz, args.max_steps, args.n_class, args.lr_init, args.pretrained,
+        train.train_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init, args.pretrained,
                             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     else:
-        train.train_hdml_triplet(streams, viz, args.max_steps, args.n_class, args.lr_init, args.pretrained,
+        train.train_hdml_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init, args.pretrained,
                                  device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    writer.close()

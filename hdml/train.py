@@ -7,17 +7,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-from sklearn.manifold import TSNE
 from . import hdml
 
-def train_triplet(data_streams, viz, max_steps, n_class, lr,
+def train_triplet(data_streams, writer, max_steps, n_class, lr,
                   model_path='model', model_save_interval=2000,
                   tsne_test_interval=1000, n_test_data=1000, pretrained=False,
                   device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
-    win_jm = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jm loss'))
-    win_tsne = viz.scatter(X=np.array([[0.0, 0.0]]), opts=dict(title='t-SNE'))
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
 
@@ -45,28 +42,23 @@ def train_triplet(data_streams, viz, max_steps, n_class, lr,
                 torch.save(tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
 
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
-                z_reduced = TSNE(n_components=2, random_state=0).fit_transform(np.vstack(test_data))
-                viz.scatter(X=z_reduced, Y=np.vstack(test_label), win=win_tsne, opts=dict(title='t-SNE'))
+                writer.add_embedding(np.vstack(test_data), np.vstack(test_label), tag='embedding/train')
+                writer.flush()
 
-            viz.line(X=np.array([cnt]), Y=np.array([jm.item()]), win=win_jm, update='append')
+            writer.add_scalar('Loss/Jm/train', jm.item(), cnt)
 
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
             cnt += 1
 
 
-def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
+def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
                        lr_gen=1.0e-2, lr_s=1.0e-3,
                        model_path='model', model_save_interval=2000,
                        tsne_test_interval=1000, n_test_data=1000, pretrained=False,
                        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     stream_train, stream_train_eval, stream_test = data_streams
     epoch_iterator = stream_train.get_epoch_iterator()
-    win_jgen = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jgen loss'))
-    win_jmetric = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jmetric loss'))
-    win_jm = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Jm loss'))
-    win_ce = viz.line(X=np.array([0]), Y=np.array([0]), opts=dict(title='Cross-entropy loss'))
-    win_tsne = viz.scatter(X=np.array([[0.0, 0.0]]), opts=dict(title='t-SNE'))
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
 
@@ -109,13 +101,13 @@ def train_hdml_triplet(data_streams, viz, max_steps, n_class, lr_init,
                 torch.save(hdml_tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
 
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
-                z_reduced = TSNE(n_components=2, random_state=0).fit_transform(np.vstack(test_data))
-                viz.scatter(X=z_reduced, Y=np.vstack(test_label), win=win_tsne, opts=dict(title='t-SNE'))
+                writer.add_embedding(np.vstack(test_data), np.vstack(test_label), tag='embedding/train')
+                writer.flush()
 
-            viz.line(X=np.array([cnt]), Y=np.array([jgen]), win=win_jgen, update='append')
-            viz.line(X=np.array([cnt]), Y=np.array([jmetric.item()]), win=win_jmetric, update='append')
-            viz.line(X=np.array([cnt]), Y=np.array([jm]), win=win_jm, update='append')
-            viz.line(X=np.array([cnt]), Y=np.array([ce.item()]), win=win_ce, update='append')
+            writer.add_scalar('Loss/Jgen/train', jgen, cnt)
+            writer.add_scalar('Loss/Jmetric/train', jmetric.item(), cnt)
+            writer.add_scalar('Loss/Jm/train', jm, cnt)
+            writer.add_scalar('Loss/cross_entropy/train', ce.item(), cnt)
 
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
