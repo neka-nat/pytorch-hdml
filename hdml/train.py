@@ -3,6 +3,7 @@ import copy
 from collections import deque
 from collections import OrderedDict
 import numpy as np
+import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -17,6 +18,7 @@ def train_triplet(data_streams, writer, max_steps, n_class, lr,
     epoch_iterator = stream_train.get_epoch_iterator()
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
+    test_img = deque(maxlen=n_test_data)
 
     tri = hdml.TripletBase(n_class=n_class, pretrained=pretrained).to(device)
     optimizer_c = optim.Adam(tri.parameters(), lr=lr, weight_decay=5e-3)
@@ -42,13 +44,18 @@ def train_triplet(data_streams, writer, max_steps, n_class, lr,
                 torch.save(tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
 
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
-                writer.add_embedding(np.vstack(test_data), np.vstack(test_label), tag='embedding/train')
+                writer.add_embedding(np.vstack(test_data), np.vstack(test_label).flatten(),
+                                     torch.from_numpy(np.stack(test_img, axis=0)),
+                                     global_step=cnt, tag='embedding/train')
                 writer.flush()
 
             writer.add_scalar('Loss/Jm/train', jm.item(), cnt)
 
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
+            for x in x_batch:
+                xx = cv2.resize(x.transpose(1, 2, 0), (32, 32)).transpose(2, 0, 1)
+                test_img.append((xx + img_mean[0]) / 255.0)
             cnt += 1
 
 
@@ -61,6 +68,7 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
     epoch_iterator = stream_train.get_epoch_iterator()
     test_data = deque(maxlen=n_test_data)
     test_label = deque(maxlen=n_test_data)
+    test_img = deque(maxlen=n_test_data)
 
     hdml_tri = hdml.TripletHDML(n_class=n_class, pretrained=pretrained).to(device)
     optimizer_c = optim.Adam(list(hdml_tri.classifier1.parameters()) + list(hdml_tri.classifier2.parameters()),
@@ -101,7 +109,9 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
                 torch.save(hdml_tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
 
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:
-                writer.add_embedding(np.vstack(test_data), np.vstack(test_label), tag='embedding/train')
+                writer.add_embedding(np.vstack(test_data), np.vstack(test_label).flatten(),
+                                     torch.from_numpy(np.stack(test_img, axis=0)),
+                                     global_step=cnt, tag='embedding/train')
                 writer.flush()
 
             writer.add_scalar('Loss/Jgen/train', jgen, cnt)
@@ -111,4 +121,7 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
 
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
+            for x in x_batch:
+                xx = cv2.resize(x.transpose(1, 2, 0), (32, 32)).transpose(2, 0, 1)
+                test_img.append((xx + img_mean[0]) / 255.0)
             cnt += 1
