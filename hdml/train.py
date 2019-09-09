@@ -87,9 +87,9 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
             x_batch -= img_mean
             pbar.update(1)
 
-            jgen, jmetric, jm, ce = hdml_tri(torch.from_numpy(x_batch).to(device),
-                                             torch.from_numpy(label.astype(np.int64)).to(device),
-                                             jm, jgen)
+            jgen, jmetric, jm, ce, embedding_z = hdml_tri(torch.from_numpy(x_batch).to(device),
+                                                          torch.from_numpy(label.astype(np.int64)).to(device),
+                                                          jm, jgen)
 
             optimizer_c.zero_grad()
             optimizer_g.zero_grad()
@@ -105,7 +105,7 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
             jgen = jgen.item()
             pbar.set_description("Jmetric: %f, Jgen: %f, Jm: %f, CrossEntropy: %f" % (jmetric.item(), jgen, jm, ce.item()))
 
-            if cnt % model_save_interval == 0:
+            if cnt > 0 and cnt % model_save_interval == 0:
                 torch.save(hdml_tri.state_dict(), os.path.join(model_path, 'model_%d.pth' % cnt))
 
             if cnt > 0 and n_test_data > 0 and cnt % tsne_test_interval == 0:

@@ -1,6 +1,11 @@
 import torch
 from torchvision.models import GoogLeNet
+from torch.hub import load_state_dict_from_url
 
+model_urls = {
+    # GoogLeNet ported from TensorFlow
+    'googlenet': 'https://download.pytorch.org/models/googlenet-1378be20.pth',
+}
 
 def googlenet(pretrained=False, progress=True, **kwargs):
     r"""GoogLeNet (Inception v1) model architecture from
@@ -38,7 +43,7 @@ def googlenet(pretrained=False, progress=True, **kwargs):
 
 class GoogLeNetForHDML(GoogLeNet):
     def __init__(self, aux_logits=True, transform_input=False, init_weights=True):
-        super(GoogLeNetForHDML, self).__init__(1, aux_logits, transform_input, init_weights)
+        super(GoogLeNetForHDML, self).__init__(1000, aux_logits, transform_input, init_weights)
 
     def forward(self, x):
         if self.transform_input:

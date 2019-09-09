@@ -23,9 +23,11 @@ if __name__ == '__main__':
         raise ValueError("`dataset` must be 'cars196' or 'cub200_2011'.")
     writer = SummaryWriter()
     if args.no_hdml:
-        train.train_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init, args.pretrained,
+        train.train_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init,
+                            pretrained=args.pretrained,
                             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     else:
-        train.train_hdml_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init, args.pretrained,
+        train.train_hdml_triplet(streams, writer, args.max_steps, args.n_class, args.lr_init,
+                                 pretrained=args.pretrained,
                                  device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     writer.close()

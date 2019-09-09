@@ -100,4 +100,4 @@ class TripletHDML(nn.Module):
         jsoft = self.softmax_factor * self.lmd * F.nll_loss(F.log_softmax(logits_q, dim=1), label, reduction='mean')
         jgen = jrecon + jsoft
 
-        return jgen, jmetric, jm, ce
+        return jgen, jmetric, jm, ce, embedding_z
