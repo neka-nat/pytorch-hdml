@@ -22,6 +22,23 @@ class Generator(nn.Module):
         return out
 
 
+class NPairBase(nn.Module):
+    def __init__(self, embedding_size=128, n_class=99, pretrained=False):
+        super(NPairBase, self).__init__()
+        n_mid = 1024
+        self.googlenet = googlenet.googlenet(pretrained=pretrained)
+        self.bn1 = nn.BatchNorm1d(n_mid)
+        self.fc1 = nn.Linear(n_mid, embedding_size)
+        self.loss_fn = loss.NpairLoss()
+
+    def forward(self, x, label):
+        embedding_y_orig = self.googlenet(x)
+        embedding = self.bn1(embedding_y_orig)
+        embedding_z = self.fc1(embedding)
+        jm = self.loss_fn(embedding_z, label)
+        return jm, embedding_y_orig, embedding_z
+
+
 class TripletBase(nn.Module):
     def __init__(self, embedding_size=128, n_class=99, pretrained=False):
         super(TripletBase, self).__init__()
