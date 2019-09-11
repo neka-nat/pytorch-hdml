@@ -101,8 +101,8 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
             optimizer_g.step()
             optimizer_s.step()
 
-            jm = jm.item()
-            jgen = jgen.item()
+            jm = max(jm.item(), 1.0e-6)
+            jgen = max(jgen.item(), 1.0e-6)
             pbar.set_description("Jmetric: %f, Jgen: %f, Jm: %f, CrossEntropy: %f" % (jmetric.item(), jgen, jm, ce.item()))
 
             if cnt > 0 and cnt % model_save_interval == 0:
