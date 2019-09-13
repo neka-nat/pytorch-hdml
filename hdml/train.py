@@ -1,11 +1,9 @@
 import os
 import copy
 from collections import deque
-from collections import OrderedDict
 import numpy as np
 import cv2
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 from . import hdml

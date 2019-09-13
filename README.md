@@ -31,19 +31,23 @@ python train_triplet.py
 
 ## Result triplet HDML
 
-CARS196 result on training(99 class, 30000 iteration)
+### CARS196 result on training(99 classes, 30000 iterations)
 
-### Loss
+#### Loss
 ![loss](assets/triplet_loss.png)
 
-### t-SNE
-![tsne](assets/triplet_tsne2d.gif)
+#### t-SNE
+![tsne](assets/triplet_train_tsne.gif)
+
+### CARS196 result on testing(97 classes)
+
+#### t-SNE
+![tsne](assets/triplet_test_tsne.gif)
 
 
 ## Todo
 
 - [ ] Implementation of Npair loss HDML
-- [ ] Evaluations of prediction
 
 ## Reference
 
