@@ -1,7 +1,5 @@
 # Hardness-Aware Deep Metric Learning
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/hardness-aware-deep-metric-learning/metric-learning-on-cars196)](https://paperswithcode.com/sota/metric-learning-on-cars196?p=hardness-aware-deep-metric-learning)
-
 This is an unofficial implementation of ["Hardness-Aware Deep Metric Learning" (CVPR 2019 Oral)](https://arxiv.org/abs/1903.05503) in Pytorch.
 
 ## Installation
