@@ -55,6 +55,8 @@ def train_triplet(data_streams, writer, max_steps, n_class, lr,
                 xx = cv2.resize(x.transpose(1, 2, 0), (32, 32)).transpose(2, 0, 1)
                 test_img.append((xx + img_mean[0]) / 255.0)
             cnt += 1
+            if cnt > max_steps:
+                break
 
 
 def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
@@ -123,3 +125,5 @@ def train_hdml_triplet(data_streams, writer, max_steps, n_class, lr_init,
                 xx = cv2.resize(x.transpose(1, 2, 0), (32, 32)).transpose(2, 0, 1)
                 test_img.append((xx + img_mean[0]) / 255.0)
             cnt += 1
+            if cnt > max_steps:
+                break
