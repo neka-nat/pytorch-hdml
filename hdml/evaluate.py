@@ -29,7 +29,7 @@ def evaluate_triplet(data_streams, writer, max_steps, n_class,
             x_batch, label = batch
             x_batch -= img_mean
             pbar.update(1)
-            _, _, embedding_z = tri(torch.from_numpy(x_batch).to(device))
+            embedding_z = tri(torch.from_numpy(x_batch).to(device), False)
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
             for x in x_batch:
@@ -66,7 +66,7 @@ def evaluate_hdml_triplet(data_streams, writer, max_steps, n_class,
             x_batch, label = batch
             x_batch -= img_mean
             pbar.update(1)
-            _, _, embedding_z = hdml_tri.classifier1(torch.from_numpy(x_batch).to(device))
+            embedding_z = hdml_tri.classifier1(torch.from_numpy(x_batch).to(device), False)
             test_data.extend(embedding_z.detach().cpu().numpy())
             test_label.extend(label)
             for x in x_batch:

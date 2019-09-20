@@ -48,12 +48,14 @@ class TripletBase(nn.Module):
         self.fc1 = nn.Linear(n_mid, embedding_size)
         self.loss_fn = loss.TripletLoss()
 
-    def forward(self, x):
+    def forward(self, x, use_loss=True):
         embedding_y_orig = self.googlenet(x)
         embedding = self.bn1(embedding_y_orig)
         embedding_z = self.fc1(embedding)
-        jm = self.loss_fn(embedding_z)
-        return jm, embedding_y_orig, embedding_z
+        if use_loss:
+            jm = self.loss_fn(embedding_z)
+            return jm, embedding_y_orig, embedding_z
+        return embedding_z
 
 
 class TripletPulling(nn.Module):
