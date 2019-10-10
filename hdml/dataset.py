@@ -30,7 +30,7 @@ def get_streams(path, batch_size=50, method='triplet',
         crop_size = (crop_size, crop_size)
 
     if method == 'n_pairs':
-        labels = dataset_class(['train'], sources=['targets'], load_in_memory=True).data_sources
+        labels = dataset_class(path, ['train'], sources=['targets'], load_in_memory=True).data_sources
         scheme = NPairLossScheme(labels, batch_size)
     elif method == 'triplet':
         labels = dataset_class(path, ['train'], sources=['targets'], load_in_memory=True).data_sources
