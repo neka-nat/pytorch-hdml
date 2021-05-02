@@ -68,7 +68,7 @@ class TripletPulling(nn.Module):
         anchor, positive, negative = torch.chunk(x, 3, dim=0)
         dist_pos = F.pairwise_distance(anchor, positive, 2)
         dist_neg = F.pairwise_distance(anchor, negative, 2)
-        r = (dist_pos + (dist_neg - dist_pos) * np.exp(-self.alpha / jm) / dist_neg).unsqueeze(-1).repeat(1, self.embedding_size)
+        r = ((dist_pos + (dist_neg - dist_pos) * np.exp(-self.alpha / jm)) / dist_neg).unsqueeze(-1).repeat(1, self.embedding_size)
         neg2 = anchor + torch.mul((negative - anchor), r)
         neg_mask = torch.ge(dist_pos, dist_neg)
         op_neg_mask = ~neg_mask
